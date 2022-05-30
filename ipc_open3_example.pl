@@ -16,10 +16,10 @@ ipc_open3_example.pl - shows how to use IPC::Open3 by streaming a compressed fil
 
 =head1 HOW TO READ OTHER STREAMS
 
-	/usr/bin/compress -d|
+	/usr/bin/compress -d
 	/usr/bin/gzip -d
 	/usr/bin/bzip2 -d
-	/usr/bin/xz -d|
+	/usr/bin/xz -d
 	/usr/local/bin/brotli -d -f
 
 =cut
@@ -37,8 +37,8 @@ $SIG{CHLD} = 'IGNORE'; # Tell exiting-children that we don't care about their ex
 
 
 my @cmd=('/usr/bin/gzip','-d');
-pipe(my $to_zip,my $zip_err); # Create 2 file handles (because open3 cannot auto-vivify error handles)
-my $pid = open3($to_zip, my $from_zip, $zip_err, @cmd); die "open3 failed: $@\n" if $@;
+my $zip_err = \do{ no warnings; local *FH };      # Create a new glob (file type) reference and put it into a scalar, (because open3 cannot auto-vivify error handles)
+my $pid = open3(my $to_zip, my $from_zip, $zip_err, @cmd); die "open3 failed: $@\n" if $@;
 open(my $in_stream,'<','LoremIpsum.gz') or die $!; # Put a huge (e.g. 2gb) .bz2-compressed file here
 my @buffsz; 
 my $inzsz=0; 	# Can set this to larger number if you want your OS to buffer it - might cause blocking though ?
